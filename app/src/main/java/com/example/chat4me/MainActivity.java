@@ -133,9 +133,16 @@ public class MainActivity extends AppCompatActivity
         int id = item.getItemId();
 
         //noinspection SimplifiableIfStatement
-        if (id == R.id.action_read_sms) {
+        if(id == R.id.action_settings) {
+            getSupportFragmentManager()
+                .beginTransaction()
+                .replace(R.id.nav_host_fragment_content_main, new SettingsFragment())
+                .commit();
+        } else if(id == R.id.action_read_sms) {
             showSmsPermission();
             return true;
+        } else if(id == R.id.action_exit) {
+            System.exit(0);
         }
 
         return super.onOptionsItemSelected(item);

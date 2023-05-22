@@ -11,7 +11,7 @@ import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.chat4me.databinding.FragmentFirstBinding;
 
-public class FirstFragment extends Fragment {
+public class ConversationsFragment extends Fragment {
 
     private FragmentFirstBinding binding;
 
@@ -32,7 +32,7 @@ public class FirstFragment extends Fragment {
         binding.buttonFirst.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                NavHostFragment.findNavController(FirstFragment.this)
+                NavHostFragment.findNavController(ConversationsFragment.this)
                         .navigate(R.id.action_FirstFragment_to_SecondFragment);
             }
         });
