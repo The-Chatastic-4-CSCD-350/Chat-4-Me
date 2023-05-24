@@ -11,13 +11,18 @@ import com.example.chat4me.messaging.SmsMessage;
 import com.google.android.material.snackbar.Snackbar;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
+import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
+import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
@@ -25,6 +30,8 @@ import com.example.chat4me.databinding.ActivityMainBinding;
 
 import android.view.Menu;
 import android.view.MenuItem;
+
+import java.util.List;
 
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
@@ -134,10 +141,23 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
-            getSupportFragmentManager()
-                .beginTransaction()
-                .replace(R.id.nav_host_fragment_content_main, new SettingsFragment())
-                .commit();
+            FragmentManager mgr = getSupportFragmentManager();
+            NavHostFragment navHostFragment = (NavHostFragment)mgr.getPrimaryNavigationFragment();
+            new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage("Unable to find primary navigation fragment (this shouldn't happen)")
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+            if(navHostFragment == null) {
+                new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage("Unable to find primary navigation fragment (this shouldn't happen)")
+                    .setPositiveButton(R.string.ok, null)
+                    .setIcon(R.drawable.ic_launcher_foreground)
+                    .show();
+            } else {
+                navHostFragment.getNavController().navigate(R.id.SettingsFragment);
+            }
         } else if(id == R.id.action_read_sms) {
             showSmsPermission();
             return true;

@@ -33,7 +33,7 @@ public class ConversationViewFragment extends Fragment {
             @Override
             public void onClick(View view) {
                 NavHostFragment.findNavController(ConversationViewFragment.this)
-                        .navigate(R.id.action_SecondFragment_to_FirstFragment);
+                        .navigate(R.id.action_ConversationViewFragment_to_ConversationsFragment);
             }
         });
     }
