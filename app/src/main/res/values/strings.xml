@@ -9,6 +9,7 @@
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
 
     <string name="new_conversation_label">Start a new conversation</string>
     <string name="no_conversations">No conversations yet</string>
@@ -30,4 +31,6 @@
     <string name="attachment_summary_on">Automatically download attachments for incoming emails
     </string>
     <string name="attachment_summary_off">Only download attachments when manually requested</string>
+    <string name="disclaimer_title">First-use disclaimer</string>
+    <string name="disclaimer_message">Chat 4 Me sends a small amount of data (your sent messages in a given conversation) to our proxy server when you request a message to be generated. This is only used for security purposes and is not kept permanently. By using the app, you accept this and promise that you won\'t abuse the system. Press OK to accept and Cancel to exit the app.</string>
 </resources>

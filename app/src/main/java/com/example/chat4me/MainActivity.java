@@ -2,6 +2,8 @@ package com.example.chat4me;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
+import android.content.DialogInterface;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -17,10 +19,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.view.View;
 
 import androidx.core.app.ActivityCompat;
-import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
-import androidx.navigation.NavHostController;
 import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
@@ -31,8 +31,6 @@ import com.example.chat4me.databinding.ActivityMainBinding;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import java.util.List;
-
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
@@ -41,6 +39,10 @@ public class MainActivity extends AppCompatActivity
     private ActivityMainBinding binding;
 
     private View mLayout;
+
+    private NavHostFragment navHost;
+
+    SharedPreferences settings;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -62,17 +64,13 @@ public class MainActivity extends AppCompatActivity
             Uri.parse("content://sms/inbox"),
                 null, null, null, null
         );
-        String[] permissions = {"android.permission.READ_SMS"};
-
         if(cur.moveToFirst()) {
             System.out.println("Starting to read messages...");
             SmsMessage msg;
             System.out.printf("Found %d threads\n", cur.getCount());
             do {
                 msg = SmsMessage.readFromCursor(cur);
-                if(msg.getBody().contains("Kaed")) {
-                    System.out.printf("Address: %s\n", msg.getAddress());
-                }
+                System.out.printf("Address: %s\n", msg.getAddress());
             } while(cur.moveToNext());
             System.out.println("Done reading messages");
         } else {
@@ -100,11 +98,40 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    private void showDisclaimerPrompt() {
+        new AlertDialog.Builder(this)
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_message)
+                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        System.exit(0);
+                    }
+                })
+                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialogInterface, int i) {
+                        settings.edit().putLong("id", System.currentTimeMillis()).apply();
+                        showSmsPermission();
+                    }
+                })
+                .show();
+    }
+
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        navHost = (NavHostFragment)getSupportFragmentManager().getPrimaryNavigationFragment();
+
+        settings = getSharedPreferences("c4mprefs", 0);
+        long id = settings.getLong("id", -1);
+        if(id < 0) {
+            showDisclaimerPrompt();
+        } else {
+            System.out.printf("User id %d\n", id);
+        }
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -141,19 +168,14 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
+            navHost.getNavController().navigate(R.id.SettingsFragment);
             FragmentManager mgr = getSupportFragmentManager();
             NavHostFragment navHostFragment = (NavHostFragment)mgr.getPrimaryNavigationFragment();
-            new AlertDialog.Builder(this)
-                    .setTitle("Error")
-                    .setMessage("Unable to find primary navigation fragment (this shouldn't happen)")
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
             if(navHostFragment == null) {
                 new AlertDialog.Builder(this)
                     .setTitle("Error")
                     .setMessage("Unable to find primary navigation fragment (this shouldn't happen)")
                     .setPositiveButton(R.string.ok, null)
-                    .setIcon(R.drawable.ic_launcher_foreground)
                     .show();
             } else {
                 navHostFragment.getNavController().navigate(R.id.SettingsFragment);
