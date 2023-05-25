@@ -6,8 +6,17 @@
         android:id="@+id/action_settings"
         android:title="@string/action_settings" />
     <item
-        android:id="@+id/action_read_sms"
-        android:title="@string/action_read_sms" />
+        android:id="@+id/action_logcat_menu"
+        android:title="@string/action_logcat_menu" >
+        <menu >
+            <item
+                android:id="@+id/action_read_sms"
+                android:title="@string/action_read_sms" />
+            <item
+                android:id="@+id/action_read_contacts"
+                android:title="@string/action_read_contacts" />
+        </menu>
+    </item>
     <item
         android:id="@+id/action_exit"
         android:title="@string/action_exit" />

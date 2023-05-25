@@ -28,7 +28,7 @@
     <fragment
         android:id="@+id/SettingsFragment"
         android:name="com.example.chat4me.SettingsFragment"
-        android:label="SettingsFragment"
+        android:label="@string/action_settings"
         tools:layout="@layout/fragment_settings">
         <action
             android:id="@+id/action_SettingsFragment_pop"

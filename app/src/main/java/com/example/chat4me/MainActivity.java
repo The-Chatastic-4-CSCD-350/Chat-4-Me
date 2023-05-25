@@ -37,12 +37,9 @@ public class MainActivity extends AppCompatActivity
     private static final int PERMISSION_SMS_READ = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
-
     private View mLayout;
-
-    private NavHostFragment navHost;
-
-    SharedPreferences settings;
+    private FragmentManager fragmentManager;
+    private SharedPreferences settings;
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -123,7 +120,7 @@ public class MainActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        navHost = (NavHostFragment)getSupportFragmentManager().getPrimaryNavigationFragment();
+        fragmentManager = getSupportFragmentManager();
 
         settings = getSharedPreferences("c4mprefs", 0);
         long id = settings.getLong("id", -1);
@@ -143,13 +140,10 @@ public class MainActivity extends AppCompatActivity
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
 
-        binding.fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
+        binding.fab.setOnClickListener(view ->
+                Snackbar
+                        .make(view, "TODO: open empty ConversationView fragment", Snackbar.LENGTH_LONG)
+                        .setAction("Action", null).show());
     }
 
     @Override
@@ -168,20 +162,22 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
-            navHost.getNavController().navigate(R.id.SettingsFragment);
-            FragmentManager mgr = getSupportFragmentManager();
-            NavHostFragment navHostFragment = (NavHostFragment)mgr.getPrimaryNavigationFragment();
+            NavHostFragment navHostFragment = ((NavHostFragment)fragmentManager
+                    .getPrimaryNavigationFragment());
             if(navHostFragment == null) {
                 new AlertDialog.Builder(this)
-                    .setTitle("Error")
-                    .setMessage("Unable to find primary navigation fragment (this shouldn't happen)")
-                    .setPositiveButton(R.string.ok, null)
-                    .show();
+                        .setTitle("Error")
+                        .setMessage(R.string.no_nav_host_error)
+                        .setPositiveButton(R.string.ok, null)
+                        .show();
             } else {
                 navHostFragment.getNavController().navigate(R.id.SettingsFragment);
             }
         } else if(id == R.id.action_read_sms) {
-            showSmsPermission();
+            // showSmsPermission();
+            return true;
+        } else if(id == R.id.action_read_contacts) {
+
             return true;
         } else if(id == R.id.action_exit) {
             System.exit(0);

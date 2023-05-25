@@ -2,6 +2,8 @@
     <string name="app_name">Chat 4 Me</string>
     <string name="action_settings">Settings</string>
     <string name="action_read_sms">Read SMS</string>
+    <string name="action_logcat_menu">logcat testing</string>
+    <string name="action_read_contacts">Read contacts</string>
     <string name="action_exit">Exit</string>
     <!-- Strings used for fragments for navigation -->
     <string name="conversations_label">Conversations</string>
@@ -17,6 +19,7 @@
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
     <string name="sms_permission_ask">Chat 4 Me requires SMS access in order to work</string>
     <string name="sms_loading">Loading SMS conversations</string>
+    <string name="no_nav_host_error">Unable to find navigation host (this shouldn\'t happen)</string>
     <!-- Preference Titles -->
     <string name="messages_header">Messages</string>
     <string name="sync_header">Sync</string>
