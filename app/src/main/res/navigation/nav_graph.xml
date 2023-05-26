@@ -9,7 +9,7 @@
         android:id="@+id/ConversationsFragment"
         android:name="com.example.chat4me.ConversationsFragment"
         android:label="@string/conversations_label"
-        tools:layout="@layout/fragment_first">
+        tools:layout="@layout/fragment_conversationlist">
 
         <action
             android:id="@+id/action_ConversationsFragment_to_ConversationViewFragment"
@@ -19,7 +19,7 @@
         android:id="@+id/ConversationViewFragment"
         android:name="com.example.chat4me.ConversationViewFragment"
         android:label="@string/second_fragment_label"
-        tools:layout="@layout/fragment_second">
+        tools:layout="@layout/fragment_conversationview">
 
         <action
             android:id="@+id/action_ConversationViewFragment_to_ConversationsFragment"

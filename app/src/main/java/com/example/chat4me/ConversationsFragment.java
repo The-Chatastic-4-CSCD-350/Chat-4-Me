@@ -9,11 +9,11 @@ import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
-import com.example.chat4me.databinding.FragmentFirstBinding;
+import com.example.chat4me.databinding.FragmentConversationlistBinding;
 
 public class ConversationsFragment extends Fragment {
 
-    private FragmentFirstBinding binding;
+    private FragmentConversationlistBinding binding;
 
     @Override
     public View onCreateView(
@@ -21,7 +21,7 @@ public class ConversationsFragment extends Fragment {
             Bundle savedInstanceState
     ) {
 
-        binding = FragmentFirstBinding.inflate(inflater, container, false);
+        binding = FragmentConversationlistBinding.inflate(inflater, container, false);
         return binding.getRoot();
 
     }
