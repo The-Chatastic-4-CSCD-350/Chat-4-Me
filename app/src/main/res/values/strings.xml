@@ -29,6 +29,8 @@
     <!-- Messages Preferences -->
     <string name="signature_title">Your signature</string>
     <string name="reply_title">Default reply action</string>
+    <string name="auto_reply_title">Auto-reply when driving</string>
+    <string name="auto_reply_summary">If selected, the app will automatically reply to a sender if the accelerometer is in motion</string>
 
     <!-- Sync Preferences -->
     <string name="sync_title">Sync email periodically</string>
