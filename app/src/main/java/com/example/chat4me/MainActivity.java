@@ -50,8 +50,7 @@ public class MainActivity extends AppCompatActivity
                 readSms();
             } else {
                 // request was denied
-                Snackbar.make(mLayout, "Permission denied :(",
-                        Snackbar.LENGTH_SHORT).show();
+                Snackbar.make(mLayout, R.string.sms_read_permission_denied, Snackbar.LENGTH_SHORT).show();
             }
         }
     }
@@ -82,8 +81,8 @@ public class MainActivity extends AppCompatActivity
     private void showSmsPermission() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,
             android.Manifest.permission.READ_SMS)) {
-                Snackbar.make(mLayout, R.string.sms_permission_ask, Snackbar.LENGTH_LONG)
-                    .setAction("OK",
+                Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.ok,
                         v -> ActivityCompat.requestPermissions(MainActivity.this,
                             new String[]{Manifest.permission.READ_SMS},
                             PERMISSION_SMS_READ)).show();
@@ -99,18 +98,10 @@ public class MainActivity extends AppCompatActivity
         new AlertDialog.Builder(this)
                 .setTitle(R.string.disclaimer_title)
                 .setMessage(R.string.disclaimer_message)
-                .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        System.exit(0);
-                    }
-                })
-                .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        settings.edit().putLong("id", System.currentTimeMillis()).apply();
-                        showSmsPermission();
-                    }
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> System.exit(0))
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                    settings.edit().putLong("id", System.currentTimeMillis()).apply();
+                    showSmsPermission();
                 })
                 .show();
     }

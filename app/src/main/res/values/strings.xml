@@ -17,7 +17,9 @@
     <string name="no_conversations">No conversations yet</string>
     <string name="hello_first_fragment">Hello first fragment</string>
     <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
-    <string name="sms_permission_ask">Chat 4 Me requires SMS access in order to work</string>
+    <string name="sms_read_permission_ask">Chat 4 Me requires SMS access in order to work</string>
+    <string name="sms_read_permission_denied">User denied permission to read SMS messages</string>
+    <string name="sms_send_permission_denied">User denied permission to send SMS messages </string>
     <string name="sms_loading">Loading SMS conversations</string>
     <string name="no_nav_host_error">Unable to find navigation host (this shouldn\'t happen)</string>
     <!-- Preference Titles -->
