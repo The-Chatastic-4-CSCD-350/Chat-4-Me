@@ -2,24 +2,27 @@
     <string name="app_name">Chat 4 Me</string>
     <string name="action_settings">Settings</string>
     <string name="action_read_sms">Read SMS</string>
+    <string name="action_send_sms">Send SMS</string>
     <string name="action_logcat_menu">logcat testing</string>
     <string name="action_read_contacts">Read contacts</string>
     <string name="action_exit">Exit</string>
     <!-- Strings used for fragments for navigation -->
-    <string name="conversations_label">Conversations</string>
-    <string name="second_fragment_label">Second Fragment</string>
+    <string name="conversation_list_label">Conversations</string>
+    <string name="conversation_view_label">Conversation</string>
     <string name="next">Next</string>
     <string name="previous">Previous</string>
     <string name="ok">OK</string>
     <string name="cancel">Cancel</string>
 
-    <string name="new_conversation_label">Start a new conversation</string>
-    <string name="no_conversations">No conversations yet</string>
-    <string name="hello_first_fragment">Hello first fragment</string>
-    <string name="hello_second_fragment">Hello second fragment. Arg: %1$s</string>
+    <!-- Permissions-related strings -->
+    <string name="required_permissions_denied">One or more required permissions was denied</string>
     <string name="sms_read_permission_ask">Chat 4 Me requires SMS access in order to work</string>
     <string name="sms_read_permission_denied">User denied permission to read SMS messages</string>
     <string name="sms_send_permission_denied">User denied permission to send SMS messages </string>
+
+    <string name="new_conversation_label">Start a new conversation</string>
+    <string name="no_conversations">No conversations yet</string>
+    <string name="no_messages_in_conversation">No messages in conversation yet</string>
     <string name="sms_loading">Loading SMS conversations</string>
     <string name="no_nav_host_error">Unable to find navigation host (this shouldn\'t happen)</string>
     <!-- Preference Titles -->
