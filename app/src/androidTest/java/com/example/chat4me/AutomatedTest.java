@@ -72,4 +72,29 @@ public class AutomatedTest {
         device.wait(Until.gone(By.clickable(true).text("Allow")),
                 500);
     }
+
+    @Test
+    public void openSettingsTest() {
+        promptVisibleTest();
+        UiObject2 toolbar = device.findObject(
+                By.res("com.example.chat4me", "toolbar"));
+        Assert.assertNotNull(toolbar);
+
+        UiObject2 menuBtn = toolbar.findObject(
+                By.desc("More options").clickable(true));
+        Assert.assertNotNull(menuBtn);
+        menuBtn.click();
+        menuBtn.recycle();
+
+        UiObject2 settingsItem = device.wait(Until.findObject(
+                By.clickable(true).hasDescendant(By.text("Settings"))),
+                    500);
+        Assert.assertNotNull(settingsItem);
+        settingsItem.click();
+        settingsItem.recycle();
+
+        // confirm that the main toolbar text changed from "Conversations" to "Settings"
+        UiObject2 title = toolbar.wait(Until.findObject(By.text("Settings")), 500);
+        Assert.assertNotNull(title);
+    }
 }
