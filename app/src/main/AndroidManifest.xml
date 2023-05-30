@@ -7,8 +7,10 @@
     <uses-feature
         android:name="android.hardware.telephony"
         android:required="true" />
+
     <uses-permission android:name="android.permission.READ_SMS" />
     <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.READ_CONTACTS" />
 
     <application
         android:allowBackup="true"
