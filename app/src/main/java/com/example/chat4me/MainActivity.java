@@ -169,7 +169,7 @@ public class MainActivity extends AppCompatActivity
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
         navController.addOnDestinationChangedListener( (nc, destination, bundle) -> {
             int destID = destination.getId();
-            if(destID == R.id.ConversationViewFragment || destID == R.id.ConversationsFragment) {
+            if(destID == R.id.ConversationsFragment) {
                 binding.fab.show();
             } else {
                 binding.fab.hide();
