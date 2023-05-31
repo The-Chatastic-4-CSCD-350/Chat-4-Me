@@ -2,7 +2,6 @@ package com.example.chat4me;
 
 import android.Manifest;
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
@@ -34,6 +33,12 @@ import android.view.MenuItem;
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback {
 
+    private static final String[] PERMISSIONS_REQUESTED = {
+            Manifest.permission.READ_SMS,
+            Manifest.permission.SEND_SMS,
+            Manifest.permission.READ_CONTACTS
+    };
+
     private static final int PERMISSION_SMS_READ = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -43,31 +48,30 @@ public class MainActivity extends AppCompatActivity
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-        @NonNull int[] grantResults) {
+                                           @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        if(requestCode == PERMISSION_SMS_READ) {
-            if(grantResults.length == 1 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                readSms();
-            } else {
-                // request was denied
-                Snackbar.make(mLayout, R.string.sms_read_permission_denied, Snackbar.LENGTH_SHORT).show();
+        for(int grantResult: grantResults) {
+            if(grantResult == PackageManager.PERMISSION_DENIED) {
+                Snackbar.make(mLayout, R.string.required_permissions_denied,
+                        Snackbar.LENGTH_INDEFINITE).show();
+                return;
             }
         }
     }
 
     private void readSms() {
         Cursor cur = getContentResolver().query(
-            Uri.parse("content://sms/inbox"),
+                Uri.parse("content://sms/inbox"),
                 null, null, null, null
         );
-        if(cur.moveToFirst()) {
+        if (cur.moveToFirst()) {
             System.out.println("Starting to read messages...");
             SmsMessage msg;
             System.out.printf("Found %d threads\n", cur.getCount());
             do {
                 msg = SmsMessage.readFromCursor(cur);
                 System.out.printf("Address: %s\n", msg.getAddress());
-            } while(cur.moveToNext());
+            } while (cur.moveToNext());
             System.out.println("Done reading messages");
         } else {
             // no messages
@@ -78,19 +82,52 @@ public class MainActivity extends AppCompatActivity
         cur.close();
     }
 
-    private void showSmsPermission() {
+    boolean hasRequiredPermissions() {
+        for(String permission: PERMISSIONS_REQUESTED) {
+            if(ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private boolean showMessageIfMissingRequirements() {
+        if(!hasRequiredPermissions()) {
+            Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.ok,
+                            v -> ActivityCompat.requestPermissions(MainActivity.this,
+                                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
+            return true;
+        }
+        return false;
+    }
+
+    private void showPermissionsRequest() {
         if(ActivityCompat.shouldShowRequestPermissionRationale(this,
             android.Manifest.permission.READ_SMS)) {
                 Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
                     .setAction(R.string.ok,
                         v -> ActivityCompat.requestPermissions(MainActivity.this,
-                            new String[]{Manifest.permission.READ_SMS},
-                            PERMISSION_SMS_READ)).show();
+                                PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
         } else {
             Snackbar.make(mLayout, R.string.sms_loading, Snackbar.LENGTH_SHORT).show();
             // Request the permission. The result will be received in onRequestPermissionResult().
             ActivityCompat.requestPermissions(this,
-                    new String[]{Manifest.permission.READ_SMS}, PERMISSION_SMS_READ);
+                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ);
+        }
+    }
+
+    private void goToFragment(int id) {
+        NavHostFragment navHostFragment = ((NavHostFragment)fragmentManager
+                .getPrimaryNavigationFragment());
+        if(navHostFragment == null) {
+            new AlertDialog.Builder(this)
+                    .setTitle("Error")
+                    .setMessage(R.string.no_nav_host_error)
+                    .setPositiveButton(R.string.ok, null)
+                    .show();
+        } else {
+            navHostFragment.getNavController().navigate(id);
         }
     }
 
@@ -101,7 +138,7 @@ public class MainActivity extends AppCompatActivity
                 .setNegativeButton(R.string.cancel, (dialogInterface, i) -> System.exit(0))
                 .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
                     settings.edit().putLong("id", System.currentTimeMillis()).apply();
-                    showSmsPermission();
+                    showPermissionsRequest();
                 })
                 .show();
     }
@@ -130,11 +167,17 @@ public class MainActivity extends AppCompatActivity
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
+        navController.addOnDestinationChangedListener( (nc, destination, bundle) -> {
+            int destID = destination.getId();
+            if(destID == R.id.ConversationViewFragment || destID == R.id.ConversationsFragment) {
+                binding.fab.show();
+            } else {
+                binding.fab.hide();
+            }
+        });
 
         binding.fab.setOnClickListener(view ->
-                Snackbar
-                        .make(view, "TODO: open empty ConversationView fragment", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show());
+                goToFragment(R.id.ConversationViewFragment));
     }
 
     @Override
@@ -153,17 +196,8 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
-            NavHostFragment navHostFragment = ((NavHostFragment)fragmentManager
-                    .getPrimaryNavigationFragment());
-            if(navHostFragment == null) {
-                new AlertDialog.Builder(this)
-                        .setTitle("Error")
-                        .setMessage(R.string.no_nav_host_error)
-                        .setPositiveButton(R.string.ok, null)
-                        .show();
-            } else {
-                navHostFragment.getNavController().navigate(R.id.SettingsFragment);
-            }
+            goToFragment(R.id.SettingsFragment);
+            return true;
         } else if(id == R.id.action_read_sms) {
             // showSmsPermission();
             return true;

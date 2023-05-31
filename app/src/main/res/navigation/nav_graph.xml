@@ -8,7 +8,7 @@
     <fragment
         android:id="@+id/ConversationsFragment"
         android:name="com.example.chat4me.ConversationsFragment"
-        android:label="@string/conversations_label"
+        android:label="@string/conversation_list_label"
         tools:layout="@layout/fragment_conversationlist">
 
         <action
@@ -18,7 +18,7 @@
     <fragment
         android:id="@+id/ConversationViewFragment"
         android:name="com.example.chat4me.ConversationViewFragment"
-        android:label="@string/second_fragment_label"
+        android:label="@string/conversation_view_label"
         tools:layout="@layout/fragment_conversationview">
 
         <action
