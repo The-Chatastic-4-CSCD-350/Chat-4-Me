@@ -36,7 +36,8 @@ public class MainActivity extends AppCompatActivity
     private static final String[] PERMISSIONS_REQUESTED = {
             Manifest.permission.READ_SMS,
             Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_CONTACTS
+            Manifest.permission.READ_CONTACTS,
+            Manifest.permission.INTERNET
     };
 
     private static final int PERMISSION_SMS_READ = 0;
