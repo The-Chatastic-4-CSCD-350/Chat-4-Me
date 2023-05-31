@@ -10,6 +10,7 @@ import androidx.fragment.app.Fragment;
 import androidx.navigation.fragment.NavHostFragment;
 
 import com.example.chat4me.databinding.FragmentConversationviewBinding;
+import com.google.android.material.snackbar.Snackbar;
 
 public class ConversationViewFragment extends Fragment {
 
@@ -28,13 +29,12 @@ public class ConversationViewFragment extends Fragment {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        binding.buttonSecond.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                NavHostFragment.findNavController(ConversationViewFragment.this)
-                        .navigate(R.id.action_ConversationViewFragment_to_ConversationsFragment);
-            }
+        binding.sendButton.setOnClickListener(clickView -> {
+            // Send text message
+        });
+        binding.completionButton.setOnClickListener(completionView -> {
+            Snackbar.make(completionView, "Sending completion request",
+                    Snackbar.LENGTH_SHORT).show();
         });
     }
 
