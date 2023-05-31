@@ -48,7 +48,7 @@ public class ConversationsFragment extends Fragment {
 
         // generating fake contacts with names to test display
         for (int i = 0; i < 10; i++) {
-            Conversation conv = new Conversation("Contact" + (i + 1));
+            Conversation conv = new Conversation("Contact " + (i + 1));
 
             // Add some fake messages to each conversation
             for (int j = 0; j < 5; j++) {
