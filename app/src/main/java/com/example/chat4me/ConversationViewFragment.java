@@ -1,17 +1,14 @@
 package com.example.chat4me;
 
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-
 
 import com.example.chat4me.databinding.FragmentConversationviewBinding;
 import com.google.android.material.snackbar.Snackbar;
@@ -19,6 +16,8 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.IOException;
 import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
@@ -100,6 +99,9 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 }
                 String completion = body.string();
                 completion = completion.substring(1, completion.length()-2);
+                String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
+                if (!(signature.equals(null) || signature.equals("not set")));
+                    completion += "\n" + signature;
                 binding.messageText.setText(completion);
             } catch (IOException e) {
                 throw new RuntimeException(e);
