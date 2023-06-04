@@ -59,7 +59,7 @@ public class ConversationsFragment extends Fragment
         Cursor cur = getContext().getContentResolver().query(
                 Uri.parse("content://sms/inbox"),
                 new String[]{"thread_id","address"},
-                null, null, "date_sent DESC"
+                null, null, "date DESC"
         );
         if(cur.moveToFirst()) {
             SmsMessage message;
@@ -108,21 +108,6 @@ public class ConversationsFragment extends Fragment
         } else {
             ActivityCompat.requestPermissions(this.getActivity(),
                     PERMISSIONS_REQUESTED, 0);
-        }
-        // Initialize conversations list
-        conversations = new ArrayList<>();
-
-        // generating fake contacts with names to test display
-        for (int i = 0; i < 10; i++) {
-            Conversation conv = new Conversation("Contact" + (i + 1));
-
-            // Add some fake messages to each conversation
-            for (int j = 0; j < 5; j++) {
-                SmsMessage msg = new SmsMessage(j);
-                conv.addMessage(msg);
-            }
-
-            conversations.add(conv);
         }
 
         // Create and set the adapter for the RecyclerView
