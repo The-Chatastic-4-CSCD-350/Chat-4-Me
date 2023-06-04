@@ -31,7 +31,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity
-        implements ActivityCompat.OnRequestPermissionsResultCallback {
+        /*implements ActivityCompat.OnRequestPermissionsResultCallback */{
 
     private static final String[] PERMISSIONS_REQUESTED = {
             Manifest.permission.READ_SMS,
@@ -47,42 +47,6 @@ public class MainActivity extends AppCompatActivity
     private FragmentManager fragmentManager;
     private SharedPreferences settings;
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
-                                           @NonNull int[] grantResults) {
-        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        for(int grantResult: grantResults) {
-            if(grantResult == PackageManager.PERMISSION_DENIED) {
-                Snackbar.make(mLayout, R.string.required_permissions_denied,
-                        Snackbar.LENGTH_INDEFINITE).show();
-                return;
-            }
-        }
-    }
-
-    private void readSms() {
-        Cursor cur = getContentResolver().query(
-                Uri.parse("content://sms/inbox"),
-                null, null, null, null
-        );
-        if (cur.moveToFirst()) {
-            System.out.println("Starting to read messages...");
-            SmsMessage msg;
-            System.out.printf("Found %d threads\n", cur.getCount());
-            do {
-                msg = SmsMessage.readFromCursor(cur);
-                System.out.printf("Address: %s\n", msg.getAddress());
-            } while (cur.moveToNext());
-            System.out.println("Done reading messages");
-        } else {
-            // no messages
-            System.out.println("No messages");
-            cur.close();
-            return;
-        }
-        cur.close();
-    }
-
     boolean hasRequiredPermissions() {
         for(String permission: PERMISSIONS_REQUESTED) {
             if(ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
@@ -90,17 +54,6 @@ public class MainActivity extends AppCompatActivity
             }
         }
         return true;
-    }
-
-    private boolean showMessageIfMissingRequirements() {
-        if(!hasRequiredPermissions()) {
-            Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.ok,
-                            v -> ActivityCompat.requestPermissions(MainActivity.this,
-                                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
-            return true;
-        }
-        return false;
     }
 
     private void showPermissionsRequest() {
@@ -198,9 +151,6 @@ public class MainActivity extends AppCompatActivity
         //noinspection SimplifiableIfStatement
         if(id == R.id.action_settings) {
             goToFragment(R.id.SettingsFragment);
-            return true;
-        } else if(id == R.id.action_read_sms) {
-            // showSmsPermission();
             return true;
         } else if(id == R.id.action_read_contacts) {
 
