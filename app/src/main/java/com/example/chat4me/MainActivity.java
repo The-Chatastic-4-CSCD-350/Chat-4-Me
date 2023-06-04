@@ -5,18 +5,19 @@ import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.net.Uri;
 import android.os.Bundle;
-
-import com.example.chat4me.messaging.SmsMessage;
-import com.google.android.material.snackbar.Snackbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-
-import android.view.View;
-
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentManager;
 import androidx.navigation.NavController;
@@ -26,18 +27,22 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.chat4me.databinding.ActivityMainBinding;
-
-import android.view.Menu;
-import android.view.MenuItem;
+import com.example.chat4me.messaging.SmsMessage;
+import com.google.android.material.snackbar.Snackbar;
 
 public class MainActivity extends AppCompatActivity
+<<<<<<< Updated upstream
         /*implements ActivityCompat.OnRequestPermissionsResultCallback */{
+=======
+        implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
+>>>>>>> Stashed changes
 
     private static final String[] PERMISSIONS_REQUESTED = {
             Manifest.permission.READ_SMS,
             Manifest.permission.SEND_SMS,
             Manifest.permission.READ_CONTACTS,
-            Manifest.permission.INTERNET
+            Manifest.permission.INTERNET,
+            Manifest.permission.ACTIVITY_RECOGNITION
     };
 
     private static final int PERMISSION_SMS_READ = 0;
@@ -46,23 +51,80 @@ public class MainActivity extends AppCompatActivity
     private View mLayout;
     private FragmentManager fragmentManager;
     private SharedPreferences settings;
+    public static boolean autoReply;
 
+
+<<<<<<< Updated upstream
+=======
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
+                                           @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        for (int grantResult : grantResults) {
+            if (grantResult == PackageManager.PERMISSION_DENIED) {
+                Snackbar.make(mLayout, R.string.required_permissions_denied,
+                        Snackbar.LENGTH_INDEFINITE).show();
+                return;
+            }
+        }
+    }
+
+
+
+    private void readSms() {
+        Cursor cur = getContentResolver().query(
+                Uri.parse("content://sms/inbox"),
+                null, null, null, null
+        );
+        if (cur.moveToFirst()) {
+            System.out.println("Starting to read messages...");
+            SmsMessage msg;
+            System.out.printf("Found %d threads\n", cur.getCount());
+            do {
+                msg = SmsMessage.readFromCursor(cur);
+                System.out.printf("Address: %s\n", msg.getAddress());
+            } while (cur.moveToNext());
+            System.out.println("Done reading messages");
+        } else {
+            // no messages
+            System.out.println("No messages");
+            cur.close();
+            return;
+        }
+        cur.close();
+    }
+
+>>>>>>> Stashed changes
     boolean hasRequiredPermissions() {
-        for(String permission: PERMISSIONS_REQUESTED) {
-            if(ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+        for (String permission : PERMISSIONS_REQUESTED) {
+            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
         }
         return true;
     }
 
-    private void showPermissionsRequest() {
-        if(ActivityCompat.shouldShowRequestPermissionRationale(this,
-            android.Manifest.permission.READ_SMS)) {
-                Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
+<<<<<<< Updated upstream
+=======
+    private boolean showMessageIfMissingRequirements() {
+        if (!hasRequiredPermissions()) {
+            Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
                     .setAction(R.string.ok,
-                        v -> ActivityCompat.requestPermissions(MainActivity.this,
-                                PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
+                            v -> ActivityCompat.requestPermissions(MainActivity.this,
+                                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
+            return true;
+        }
+        return false;
+    }
+
+>>>>>>> Stashed changes
+    private void showPermissionsRequest() {
+        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                android.Manifest.permission.READ_SMS)) {
+            Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.ok,
+                            v -> ActivityCompat.requestPermissions(MainActivity.this,
+                                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
         } else {
             Snackbar.make(mLayout, R.string.sms_loading, Snackbar.LENGTH_SHORT).show();
             // Request the permission. The result will be received in onRequestPermissionResult().
@@ -72,9 +134,9 @@ public class MainActivity extends AppCompatActivity
     }
 
     private void goToFragment(int id) {
-        NavHostFragment navHostFragment = ((NavHostFragment)fragmentManager
+        NavHostFragment navHostFragment = ((NavHostFragment) fragmentManager
                 .getPrimaryNavigationFragment());
-        if(navHostFragment == null) {
+        if (navHostFragment == null) {
             new AlertDialog.Builder(this)
                     .setTitle("Error")
                     .setMessage(R.string.no_nav_host_error)
@@ -106,7 +168,7 @@ public class MainActivity extends AppCompatActivity
 
         settings = getSharedPreferences("c4mprefs", 0);
         long id = settings.getLong("id", -1);
-        if(id < 0) {
+        if (id < 0) {
             showDisclaimerPrompt();
         } else {
             System.out.printf("User id %d\n", id);
@@ -121,14 +183,22 @@ public class MainActivity extends AppCompatActivity
         NavController navController = Navigation.findNavController(this, R.id.nav_host_fragment_content_main);
         appBarConfiguration = new AppBarConfiguration.Builder(navController.getGraph()).build();
         NavigationUI.setupActionBarWithNavController(this, navController, appBarConfiguration);
-        navController.addOnDestinationChangedListener( (nc, destination, bundle) -> {
+        navController.addOnDestinationChangedListener((nc, destination, bundle) -> {
             int destID = destination.getId();
-            if(destID == R.id.ConversationsFragment) {
+            if (destID == R.id.ConversationsFragment) {
                 binding.fab.show();
             } else {
                 binding.fab.hide();
             }
         });
+
+
+        SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        Sensor acceloSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        sensorManager.registerListener(this, acceloSensor, SensorManager.SENSOR_DELAY_NORMAL);
+
+
+
 
         binding.fab.setOnClickListener(view ->
                 goToFragment(R.id.ConversationViewFragment));
@@ -168,4 +238,44 @@ public class MainActivity extends AppCompatActivity
         return NavigationUI.navigateUp(navController, appBarConfiguration)
                 || super.onSupportNavigateUp();
     }
+
+    @Override
+    public void onSensorChanged(SensorEvent event) {
+        double speed = getAccelerometer(event.values);
+
+        if(speed > 0.9 && speed < 1.1) {
+            // device is not moving
+            setAutoReply(false);
+        } else {
+            // device is moving.
+            setAutoReply(true);
+        }
+
+    }
+
+    @Override
+    public void onAccuracyChanged(Sensor sensor, int i) {
+
+    }
+
+    private double getAccelerometer(float[] values) {
+        // Movement
+        float x = values[0];
+        float y = values[1];
+        float z = values[2];
+
+        float accelerationSquareRoot =
+                (float) ((x * x + y * y + z * z) / (9.80665 * 9.80665));
+
+        return Math.sqrt(accelerationSquareRoot);
+    }
+
+    public static boolean isAutoReply() {
+        return autoReply;
+    }
+
+    public static void setAutoReply(boolean autoReply) {
+        MainActivity.autoReply = autoReply;
+    }
+
 }

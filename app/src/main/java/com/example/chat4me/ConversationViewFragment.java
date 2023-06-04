@@ -26,6 +26,10 @@ public class ConversationViewFragment extends Fragment implements Callback {
 
     private CompletionClient completionClient;
 
+    public CompletionClient getCompletionClient() {
+        return completionClient;
+    }
+
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
@@ -107,11 +111,15 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
                 if(!(signature == null || signature.equals("not set")))
                     completion += "\n" + signature;
+                boolean b = MainActivity.isAutoReply();
                 binding.messageText.setText(completion);
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
 
+
+
     }
+
 }

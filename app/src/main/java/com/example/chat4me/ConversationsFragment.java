@@ -9,7 +9,6 @@ import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import static androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback;
@@ -19,7 +18,6 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.chat4me.databinding.FragmentConversationlistBinding;
 import com.example.chat4me.messaging.Conversation;
@@ -105,11 +103,29 @@ public class ConversationsFragment extends Fragment
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+<<<<<<< Updated upstream
         if(hasRequiredPermissions()) {
             readThreads();
         } else {
             ActivityCompat.requestPermissions(this.getActivity(),
                     PERMISSIONS_REQUESTED, 0);
+=======
+        // Initialize conversations list
+        conversations = new ArrayList<>();
+
+        // generating fake contacts with names to test display
+        for (int i = 0; i < 10; i++) {
+            Conversation conv = new Conversation("Contact" + (i + 1));
+
+            // Add some fake messages to each conversation
+            for (int j = 0; j < 5; j++) {
+                SmsMessage msg = new SmsMessage(j);
+                conv.addMessage(msg);
+            }
+
+            conversations.add(conv);
+
+>>>>>>> Stashed changes
         }
 
         // Create and set the adapter for the RecyclerView
@@ -137,4 +153,18 @@ public class ConversationsFragment extends Fragment
         super.onDestroyView();
         binding = null;
     }
+<<<<<<< Updated upstream
+=======
+
+    public void onConversationClick(int position) {
+        // Navigate to the conversation view when a conversation is clicked
+        NavHostFragment.findNavController(ConversationsFragment.this)
+                .navigate(R.id.action_ConversationsFragment_to_ConversationViewFragment);
+    }
+
+    public static void reply(String address) {
+        
+
+    }
+>>>>>>> Stashed changes
 }

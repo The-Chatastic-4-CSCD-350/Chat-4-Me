@@ -121,4 +121,5 @@ public class SmsMessage {
     public void setThreadId(int thread_id) {
         this.thread_id = thread_id;
     }
+
 }
