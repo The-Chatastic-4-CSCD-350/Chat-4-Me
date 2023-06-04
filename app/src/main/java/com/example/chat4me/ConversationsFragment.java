@@ -1,7 +1,6 @@
 package com.example.chat4me;
 
 import android.Manifest;
-import android.content.ContentResolver;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -58,18 +57,34 @@ public class ConversationsFragment extends Fragment
     private void readThreads() {
         Cursor cur = getContext().getContentResolver().query(
                 Uri.parse("content://sms/inbox"),
-                new String[]{"thread_id","address"},
-                null, null, "date DESC"
+                new String[]{"thread_id","address", "subject", "body", "date", "date_sent"},
+                null, null, "date"
         );
         if(cur.moveToFirst()) {
             SmsMessage message;
             Conversation conv;
             do {
                 message = SmsMessage.readFromCursor(cur);
-                conv = new Conversation(message.getAddress());
-                conv.addMessage(message);
-                conversations.add(conv);
+                String body = message.getBody();
+                if(body != null && body.length() > 70) {
+                    message.setBody(body.substring(0,70).replace("\n"," ") + "…");
+                }
+                boolean exists = false;
+                for(int i = 0; i < conversations.size(); i++) {
+                    Conversation tmpConv = conversations.get(i);
+                    if(tmpConv.inConversation(message.getAddress())) {
+                        tmpConv.addMessage(message);
+                        exists = true;
+                    }
+                }
+                if(!exists) {
+                    conv = new Conversation(message.getAddress());
+                    conv.addMessage(message);
+                    conversations.add(conv);
+                }
             } while(cur.moveToNext());
+            conversations.sort((o1, o2) ->
+                    o2.getLastMessage().getDate().compareTo(o1.getLastMessage().getDate()));
         }
         if(!cur.isClosed())
             cur.close();
