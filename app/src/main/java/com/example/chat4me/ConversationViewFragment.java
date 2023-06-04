@@ -41,6 +41,11 @@ public class ConversationViewFragment extends Fragment implements Callback {
         binding.sendButton.setOnClickListener(clickView -> {
             // Send text message
         });
+        Bundle args = getArguments();
+        if(args != null) {
+            int threadID = args.getInt("threadID");
+            System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
+        }
         binding.completionButton.setOnClickListener(completionView -> {
             Snackbar.make(completionView, "Sending completion request",
                     Snackbar.LENGTH_SHORT).setAction(R.string.ok, null).show();
@@ -100,7 +105,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 String completion = body.string();
                 completion = completion.substring(1, completion.length()-2);
                 String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
-                if (!(signature.equals(null) || signature.equals("not set")));
+                if(!(signature == null || signature.equals("not set")))
                     completion += "\n" + signature;
                 binding.messageText.setText(completion);
             } catch (IOException e) {
