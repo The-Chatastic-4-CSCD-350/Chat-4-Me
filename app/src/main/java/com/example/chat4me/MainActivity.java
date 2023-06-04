@@ -4,18 +4,15 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -27,8 +24,9 @@ import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
 
 import com.example.chat4me.databinding.ActivityMainBinding;
-import com.example.chat4me.messaging.SmsMessage;
 import com.google.android.material.snackbar.Snackbar;
+
+import okhttp3.Callback;
 
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
@@ -48,6 +46,8 @@ public class MainActivity extends AppCompatActivity
     private FragmentManager fragmentManager;
     private SharedPreferences settings;
     public static boolean autoReply;
+
+
 
     boolean hasRequiredPermissions() {
         for (String permission : PERMISSIONS_REQUESTED) {
@@ -217,5 +217,11 @@ public class MainActivity extends AppCompatActivity
     public static void setAutoReply(boolean autoReply) {
         MainActivity.autoReply = autoReply;
     }
+
+    public void reply(String address) {
+        CompletionClient tempClient = new CompletionClient("https://chat4me.org/c4m/completion");
+        tempClient.sendCompletionRequest(new String[]{"temp"}, (Callback) this);
+    }
+
 
 }

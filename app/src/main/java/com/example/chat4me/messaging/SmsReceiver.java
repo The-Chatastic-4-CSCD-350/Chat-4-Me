@@ -5,7 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 
-import com.example.chat4me.ConversationsFragment;
+import com.example.chat4me.ConversationViewFragment;
 import com.example.chat4me.MainActivity;
 
 public class SmsReceiver extends BroadcastReceiver {
@@ -19,11 +19,20 @@ public class SmsReceiver extends BroadcastReceiver {
                     //---retrieve the SMS message received---
                     Object[] pdus = (Object[]) bundle.get("pdus");
                     msgs = new SmsMessage[pdus.length];
-                    msgs[0].getAddress();
-                    ConversationsFragment.reply(msgs[0].getAddress());
+                    newInstance(msgs[0].getAddress());
 
+                    }
                 }
             }
         }
+    public static ConversationViewFragment newInstance(String address) {
+        ConversationViewFragment f = new ConversationViewFragment();
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putString("address", address);
+        args.putBoolean("true",true);
+        f.setArguments(args);
+        return f;
     }
 }
+

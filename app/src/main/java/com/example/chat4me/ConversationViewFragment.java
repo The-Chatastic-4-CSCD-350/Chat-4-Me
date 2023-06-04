@@ -22,6 +22,8 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class ConversationViewFragment extends Fragment implements Callback {
+
+    private boolean reply;
     private FragmentConversationviewBinding binding;
 
     private CompletionClient completionClient;
@@ -42,6 +44,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         binding.sendButton.setOnClickListener(clickView -> {
             // Send text message
         });
@@ -49,6 +52,11 @@ public class ConversationViewFragment extends Fragment implements Callback {
         if(args != null) {
             int threadID = args.getInt("threadID");
             System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
+            Boolean reply = args.getBoolean("reply", false);
+            setReply(true);
+            if(reply == true){
+                reply4me();
+            }
         }
         binding.completionButton.setOnClickListener(completionView -> {
             Snackbar.make(completionView, "Sending completion request",
@@ -82,6 +90,12 @@ public class ConversationViewFragment extends Fragment implements Callback {
         });
     }
 
+    private void setReply(boolean reply) {
+        this.reply=reply;
+
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -111,14 +125,23 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
                 if(!(signature == null || signature.equals("not set")))
                     completion += "\n" + signature;
-                boolean b = MainActivity.isAutoReply();
                 binding.messageText.setText(completion);
+                if(isReply()==true){
+                    // TODO call send function when it is implemented
+                    setReply(false);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
 
+    private boolean isReply() {
+        return reply;
+    }
 
+    private void reply4me() {
+        completionClient.sendCompletionRequest(new String[]{"temp"}, this);
 
     }
 
