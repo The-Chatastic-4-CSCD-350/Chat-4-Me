@@ -4,6 +4,8 @@ import android.database.Cursor;
 
 import androidx.annotation.NonNull;
 
+import java.util.Date;
+
 /**
  * SmsMessage represents message data loaded from content://sms/[inbox|sent]
  */
@@ -13,8 +15,8 @@ public class SmsMessage {
     private int thread_id;
     private String address;
     private int person;
-    private String date;
-    private String date_sent;
+    private long date;
+    private long date_sent;
     private int protocol;
     private int read;
     private int status;
@@ -35,6 +37,12 @@ public class SmsMessage {
             return cur.getInt(index);
         return 0;
     }
+    private static long getLongFromCursorColumnName(String colName, Cursor cur, long fallback) {
+        int index = cur.getColumnIndex(colName);
+        if(index > -1)
+            return cur.getLong(index);
+        return 0;
+    }
     private static String getStringFromCursorColumnName(String colName, Cursor cur) {
         int index = cur.getColumnIndex(colName);
         if(index > -1)
@@ -50,8 +58,8 @@ public class SmsMessage {
 
         msg.address = getStringFromCursorColumnName("address", cur);
         msg.person = getIntFromCursorColumnName("person", cur, 0);
-        msg.date = getStringFromCursorColumnName("date", cur);
-        msg.date_sent = getStringFromCursorColumnName("date_sent", cur);
+        msg.date = getLongFromCursorColumnName("date", cur, 0);
+        msg.date_sent = getLongFromCursorColumnName("date_sent", cur, 0);
         msg.protocol = getIntFromCursorColumnName("protocol", cur, 0);
         msg.read = getIntFromCursorColumnName("read", cur, 0);
         msg.status = getIntFromCursorColumnName("status", cur, 0);
@@ -98,6 +106,18 @@ public class SmsMessage {
      */
     public String getBody() {
         return body;
+    }
+
+    /**
+     * setBody sets the message text to body
+     * @param body the new message text
+     */
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public Date getDate() {
+        return new Date(date);
     }
 
     /**

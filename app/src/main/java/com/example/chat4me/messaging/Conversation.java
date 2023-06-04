@@ -51,5 +51,15 @@ public class Conversation {
         message.setThreadId(threadID);
         messages.add(message);
     }
+
+    public boolean inConversation(String address) {
+        for(SmsMessage msg: messages) {
+            String msgAddr = msg.getAddress();
+            if(msgAddr != null && msgAddr.equals(address)) {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 
