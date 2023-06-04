@@ -103,13 +103,12 @@ public class ConversationsFragment extends Fragment
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-<<<<<<< Updated upstream
         if(hasRequiredPermissions()) {
             readThreads();
         } else {
             ActivityCompat.requestPermissions(this.getActivity(),
                     PERMISSIONS_REQUESTED, 0);
-=======
+        }
         // Initialize conversations list
         conversations = new ArrayList<>();
 
@@ -124,8 +123,6 @@ public class ConversationsFragment extends Fragment
             }
 
             conversations.add(conv);
-
->>>>>>> Stashed changes
         }
 
         // Create and set the adapter for the RecyclerView
@@ -153,8 +150,6 @@ public class ConversationsFragment extends Fragment
         super.onDestroyView();
         binding = null;
     }
-<<<<<<< Updated upstream
-=======
 
     public void onConversationClick(int position) {
         // Navigate to the conversation view when a conversation is clicked
@@ -166,5 +161,4 @@ public class ConversationsFragment extends Fragment
         
 
     }
->>>>>>> Stashed changes
 }
