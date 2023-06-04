@@ -72,10 +72,9 @@ public class ConversationsFragment extends Fragment
                 conv.addMessage(message);
                 conversations.add(conv);
             } while(cur.moveToNext());
-            cur.close();
-        } else {
-            Snackbar.make(this.getView(), R.string.no_conversations, Snackbar.LENGTH_LONG).show();
         }
+        if(!cur.isClosed())
+            cur.close();
     }
 
     public interface OnConversationClickListener {
@@ -99,19 +98,19 @@ public class ConversationsFragment extends Fragment
     ) {
         // Initialize conversations list
         conversations = new ArrayList<>();
-
         binding = FragmentConversationlistBinding.inflate(inflater, container, false);
+        return binding.getRoot();
+    }
+
+    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+
         if(hasRequiredPermissions()) {
             readThreads();
         } else {
             ActivityCompat.requestPermissions(this.getActivity(),
                     PERMISSIONS_REQUESTED, 0);
         }
-        return binding.getRoot();
-    }
-
-    public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
-        super.onViewCreated(view, savedInstanceState);
 
         // Create and set the adapter for the RecyclerView
         adapter = new ConversationAdapter(conversations, new OnConversationClickListener() {
@@ -126,8 +125,11 @@ public class ConversationsFragment extends Fragment
         });
         binding.recyclerView.setAdapter(adapter);
 
-        // Set layout manager for the RecyclerView
+       // Set layout manager for the RecyclerView
         binding.recyclerView.setLayoutManager(new LinearLayoutManager(getContext()));
+        if(conversations.size() > 0) {
+            binding.noConversationsView.setVisibility(View.GONE);
+        }
     }
 
     @Override
