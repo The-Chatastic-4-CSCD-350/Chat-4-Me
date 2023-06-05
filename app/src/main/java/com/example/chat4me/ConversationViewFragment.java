@@ -7,9 +7,12 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.telephony.SmsManager;
+import android.text.Editable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -42,6 +45,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
     private CompletionClient completionClient;
     private ArrayList<String> messages = new ArrayList<>();
     private static int MAX_SENT_TO_COMPLETION = 25;
+    String address;
 
     public CompletionClient getCompletionClient() {
         return completionClient;
@@ -62,6 +66,14 @@ public class ConversationViewFragment extends Fragment implements Callback {
 
         binding.sendButton.setOnClickListener(clickView -> {
             // Send text message
+            Editable messageText = binding.messageText.getText();
+            if(messageText != null && messageText.length() != 0) {
+                SmsManager smsManager = SmsManager.getDefault();
+                smsManager.sendTextMessage(address, null,
+                        messageText.toString(), null, null);
+                messages.add("You:" + messageText);
+                binding.messageText.setText("");
+            }
         });
 
         Bundle args = getArguments();
@@ -102,20 +114,22 @@ public class ConversationViewFragment extends Fragment implements Callback {
         if (allSmsUri != null && smsCursor.moveToFirst()) {
             do {
                 int id = smsCursor.getInt(0);
+                address = smsCursor.getString(2);
                 String messageBody = smsCursor.getString(3);
 
-                if(messages.size() < MAX_SENT_TO_COMPLETION) {
-                    sentCursor = getActivity().getContentResolver().query(sentSmsUri,
-                            new String[]{"_id"}, "thread_id = ? AND _id = ?",
-                            new String[]{Integer.toString(threadID), Integer.toString(id)},
-                            "date");
-                    sentCursor.moveToFirst();
-                    boolean isSent = sentCursor.getCount() > 0;
-                    sentCursor.close();
-                    if(isSent) messages.add("You:" + messageBody);
-                    else messages.add("Friend:" + messageLayout);
-                }
+                sentCursor = getActivity().getContentResolver().query(sentSmsUri,
+                        new String[]{"_id"}, "thread_id = ? AND _id = ?",
+                        new String[]{Integer.toString(threadID), Integer.toString(id)},
+                        "date");
+                sentCursor.moveToFirst();
+                boolean isSent = sentCursor.getCount() > 0;
+                sentCursor.close();
 
+                if(isSent) messageBody = "You: " + messageBody;
+                else messageBody = address + ": " + messageBody;
+                if(messages.size() < MAX_SENT_TO_COMPLETION) {
+                    messages.add(messageBody);
+                }
                 TextView textView = new TextView(getActivity());
                 textView.setText(messageBody);
                 messageLayout.addView(textView);
