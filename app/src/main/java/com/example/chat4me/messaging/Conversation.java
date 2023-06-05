@@ -48,8 +48,9 @@ public class Conversation {
 
     // Method to add a message to the conversation
     public void addMessage(SmsMessage message) {
-        message.setThreadId(threadID);
         messages.add(message);
+        if(threadID == -1)
+            threadID = message.getThread_id();
     }
 
     public boolean inConversation(String address) {

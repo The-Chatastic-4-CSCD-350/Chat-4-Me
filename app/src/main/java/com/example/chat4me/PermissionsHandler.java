@@ -14,6 +14,7 @@ public class PermissionsHandler {
         Manifest.permission.INTERNET,
         Manifest.permission.ACTIVITY_RECOGNITION
     };
+    public static final int PERMISSION_SMS_READ = 0;
     private View pView;
     private Activity pActivity;
     public PermissionsHandler(Activity activity, View view) {

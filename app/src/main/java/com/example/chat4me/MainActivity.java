@@ -31,7 +31,6 @@ import okhttp3.Callback;
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
 
-    private static final int PERMISSION_SMS_READ = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
     private View mLayout;
@@ -39,31 +38,6 @@ public class MainActivity extends AppCompatActivity
     private SharedPreferences settings;
     public static boolean autoReply;
 
-
-
-    boolean hasRequiredPermissions() {
-        for (String permission : PermissionsHandler.PERMISSIONS_REQUESTED) {
-            if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                return false;
-            }
-        }
-        return true;
-    }
-
-    private void showPermissionsRequest() {
-        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                android.Manifest.permission.READ_SMS)) {
-            Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
-                    .setAction(R.string.ok,
-                            v -> ActivityCompat.requestPermissions(MainActivity.this,
-                                    PermissionsHandler.PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
-        } else {
-            Snackbar.make(mLayout, R.string.sms_loading, Snackbar.LENGTH_SHORT).show();
-            // Request the permission. The result will be received in onRequestPermissionResult().
-            ActivityCompat.requestPermissions(this,
-                    PermissionsHandler.PERMISSIONS_REQUESTED, PERMISSION_SMS_READ);
-        }
-    }
 
     private void goToFragment(int id) {
         NavHostFragment navHostFragment = ((NavHostFragment) fragmentManager
@@ -79,18 +53,6 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
-    private void showDisclaimerPrompt() {
-        new AlertDialog.Builder(this)
-                .setTitle(R.string.disclaimer_title)
-                .setMessage(R.string.disclaimer_message)
-                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> System.exit(0))
-                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
-                    settings.edit().putLong("id", System.currentTimeMillis()).apply();
-                    showPermissionsRequest();
-                })
-                .show();
-    }
-
     @SuppressLint("ResourceType")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,13 +60,6 @@ public class MainActivity extends AppCompatActivity
 
         fragmentManager = getSupportFragmentManager();
 
-        settings = getSharedPreferences("c4mprefs", 0);
-        long id = settings.getLong("id", -1);
-        if (id < 0) {
-            showDisclaimerPrompt();
-        } else {
-            System.out.printf("User id %d\n", id);
-        }
         binding = ActivityMainBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -124,13 +79,9 @@ public class MainActivity extends AppCompatActivity
             }
         });
 
-
         SensorManager sensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
         Sensor acceloSensor = sensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorManager.registerListener(this, acceloSensor, SensorManager.SENSOR_DELAY_NORMAL);
-
-
-
 
         binding.fab.setOnClickListener(view ->
                 goToFragment(R.id.ConversationViewFragment));
