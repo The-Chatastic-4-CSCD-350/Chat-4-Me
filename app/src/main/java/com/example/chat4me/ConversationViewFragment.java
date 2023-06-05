@@ -92,7 +92,8 @@ public class ConversationViewFragment extends Fragment implements Callback {
         Uri uri = Uri.parse("content://sms");
         String[] reqCols = new String[]{"_id", "thread_id", "address", "body"};
 
-        Cursor cursor = getActivity().getContentResolver().query(uri, reqCols, "thread_id=" + threadID, null, null);
+        Cursor cursor = getActivity().getContentResolver().query(uri, reqCols,
+                "thread_id = ?", new String[]{Integer.toString(threadID)}, "date");
         LinearLayout messageLayout = binding.messagesLayout;
 
         if (cursor != null) {
