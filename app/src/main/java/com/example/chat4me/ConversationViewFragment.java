@@ -5,15 +5,18 @@ import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 import android.Manifest;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
+import android.graphics.Color;
 import android.net.Uri;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.text.Editable;
+import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
@@ -26,7 +29,6 @@ import com.example.chat4me.databinding.FragmentConversationviewBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
-import java.sql.Date;
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -38,14 +40,15 @@ import okhttp3.ResponseBody;
 public class ConversationViewFragment extends Fragment implements Callback {
 
     private static final int REQUEST_READ_SMS_PERMISSION = 101;
+    private static final int MAX_RECENT = 20;
 
     private boolean reply;
     private FragmentConversationviewBinding binding;
 
     private CompletionClient completionClient;
     private ArrayList<String> messages = new ArrayList<>();
-    private static int MAX_SENT_TO_COMPLETION = 25;
-    String address;
+    private ArrayList<String> recentMessages = new ArrayList<>();
+    private String address;
 
     public CompletionClient getCompletionClient() {
         return completionClient;
@@ -72,6 +75,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 smsManager.sendTextMessage(address, null,
                         messageText.toString(), null, null);
                 messages.add("You:" + messageText);
+                updateRecentMessages();
                 binding.messageText.setText("");
             }
         });
@@ -82,7 +86,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
             System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
             loadMessages(threadID);
             boolean reply = args.getBoolean("reply", false);
-            setReply(true);
+            setReply(reply);
             if (reply) {
                 reply4me();
             }
@@ -92,7 +96,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
             Snackbar.make(completionView, "Sending completion request",
                     Snackbar.LENGTH_SHORT).setAction(R.string.ok, null).show();
             completionClient.sendCompletionRequest(
-                    messages.toArray(new String[0]), this);
+                    recentMessages.toArray(new String[0]), this);
         });
     }
 
@@ -126,16 +130,29 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 sentCursor.close();
 
                 if(isSent) messageBody = "You: " + messageBody;
-                else messageBody = address + ": " + messageBody;
-                if(messages.size() < MAX_SENT_TO_COMPLETION) {
-                    messages.add(messageBody);
-                }
                 TextView textView = new TextView(getActivity());
+
+                if(isSent) {
+                    messageBody = "You: " + messageBody;
+                    textView.setTextColor(Color.parseColor("#1BB8C5"));
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                }
+                else {
+                    messageBody = address + ": " + messageBody;
+                    textView.setTextColor(Color.parseColor("#3DDA83"));
+                    textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20);
+                }
+
+                messages.add(0, messageBody); // add to the front of the list
                 textView.setText(messageBody);
                 messageLayout.addView(textView);
             } while (smsCursor.moveToNext());
             smsCursor.close();
+            updateRecentMessages(); // update the recent messages after loading all messages
         }
+        // Scroll to the bottom of the conversation
+        final ScrollView scrollview = ((ScrollView) binding.getRoot().findViewById(R.id.scrollView));
+        scrollview.post(() -> scrollview.fullScroll(ScrollView.FOCUS_DOWN));
     }
 
     private void setReply(boolean reply) {
@@ -187,6 +204,11 @@ public class ConversationViewFragment extends Fragment implements Callback {
     }
 
     private void reply4me() {
-        completionClient.sendCompletionRequest(messages.toArray(new String[0]), this);
+        completionClient.sendCompletionRequest(recentMessages.toArray(new String[0]), this);
+    }
+
+    private void updateRecentMessages() {
+        int startIndex = Math.max(0, messages.size() - MAX_RECENT);
+        recentMessages = new ArrayList<>(messages.subList(startIndex, messages.size()));
     }
 }
