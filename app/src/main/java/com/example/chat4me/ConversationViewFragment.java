@@ -41,6 +41,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
 
     private CompletionClient completionClient;
     private ArrayList<String> messages = new ArrayList<>();
+    private static int MAX_SENT_TO_COMPLETION = 25;
 
     public CompletionClient getCompletionClient() {
         return completionClient;
@@ -70,7 +71,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
             loadMessages(threadID);
             boolean reply = args.getBoolean("reply", false);
             setReply(true);
-            if (reply == true) {
+            if (reply) {
                 reply4me();
             }
         }
@@ -89,25 +90,37 @@ public class ConversationViewFragment extends Fragment implements Callback {
             return;
         }
 
-        Uri uri = Uri.parse("content://sms");
+        Uri allSmsUri = Uri.parse("content://sms");
+        Uri sentSmsUri = Uri.parse("content://sms/sent");
         String[] reqCols = new String[]{"_id", "thread_id", "address", "body"};
 
-        Cursor cursor = getActivity().getContentResolver().query(uri, reqCols,
+        Cursor smsCursor = getActivity().getContentResolver().query(allSmsUri, reqCols,
                 "thread_id = ?", new String[]{Integer.toString(threadID)}, "date");
+        Cursor sentCursor;
         LinearLayout messageLayout = binding.messagesLayout;
 
-        if (cursor != null && cursor.moveToFirst()) {
+        if (allSmsUri != null && smsCursor.moveToFirst()) {
             do {
-                int index = cursor.getColumnIndex("body");
-                if (index != -1) {
-                    String messageBody = cursor.getString(index);
-                    TextView textView = new TextView(getActivity());
-                    textView.setText(messageBody);
-                    messageLayout.addView(textView);
-                    messages.add(messageBody);
+                int id = smsCursor.getInt(0);
+                String messageBody = smsCursor.getString(3);
+
+                if(messages.size() < MAX_SENT_TO_COMPLETION) {
+                    sentCursor = getActivity().getContentResolver().query(sentSmsUri,
+                            new String[]{"_id"}, "thread_id = ? AND _id = ?",
+                            new String[]{Integer.toString(threadID), Integer.toString(id)},
+                            "date");
+                    sentCursor.moveToFirst();
+                    boolean isSent = sentCursor.getCount() > 0;
+                    sentCursor.close();
+                    if(isSent) messages.add("You:" + messageBody);
+                    else messages.add("Friend:" + messageLayout);
                 }
-            } while (cursor.moveToNext());
-            cursor.close();
+
+                TextView textView = new TextView(getActivity());
+                textView.setText(messageBody);
+                messageLayout.addView(textView);
+            } while (smsCursor.moveToNext());
+            smsCursor.close();
         }
     }
 
