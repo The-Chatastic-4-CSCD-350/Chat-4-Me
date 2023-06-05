@@ -31,14 +31,6 @@ import okhttp3.Callback;
 public class MainActivity extends AppCompatActivity
         implements ActivityCompat.OnRequestPermissionsResultCallback, SensorEventListener {
 
-    private static final String[] PERMISSIONS_REQUESTED = {
-            Manifest.permission.READ_SMS,
-            Manifest.permission.SEND_SMS,
-            Manifest.permission.READ_CONTACTS,
-            Manifest.permission.INTERNET,
-            Manifest.permission.ACTIVITY_RECOGNITION
-    };
-
     private static final int PERMISSION_SMS_READ = 0;
     private AppBarConfiguration appBarConfiguration;
     private ActivityMainBinding binding;
@@ -50,7 +42,7 @@ public class MainActivity extends AppCompatActivity
 
 
     boolean hasRequiredPermissions() {
-        for (String permission : PERMISSIONS_REQUESTED) {
+        for (String permission : PermissionsHandler.PERMISSIONS_REQUESTED) {
             if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
             }
@@ -64,12 +56,12 @@ public class MainActivity extends AppCompatActivity
             Snackbar.make(mLayout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
                     .setAction(R.string.ok,
                             v -> ActivityCompat.requestPermissions(MainActivity.this,
-                                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
+                                    PermissionsHandler.PERMISSIONS_REQUESTED, PERMISSION_SMS_READ)).show();
         } else {
             Snackbar.make(mLayout, R.string.sms_loading, Snackbar.LENGTH_SHORT).show();
             // Request the permission. The result will be received in onRequestPermissionResult().
             ActivityCompat.requestPermissions(this,
-                    PERMISSIONS_REQUESTED, PERMISSION_SMS_READ);
+                    PermissionsHandler.PERMISSIONS_REQUESTED, PERMISSION_SMS_READ);
         }
     }
 

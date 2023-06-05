@@ -52,7 +52,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
         if(args != null) {
             int threadID = args.getInt("threadID");
             System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
-            Boolean reply = args.getBoolean("reply", false);
+            boolean reply = args.getBoolean("reply", false);
             setReply(true);
             if(reply == true){
                 reply4me();
