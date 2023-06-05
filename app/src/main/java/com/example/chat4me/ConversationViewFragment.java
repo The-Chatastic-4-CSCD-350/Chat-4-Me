@@ -1,17 +1,14 @@
 package com.example.chat4me;
 
+import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
+
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
-import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-
-import okhttp3.Call;
-import okhttp3.Callback;
-
 
 import com.example.chat4me.databinding.FragmentConversationviewBinding;
 import com.google.android.material.snackbar.Snackbar;
@@ -19,13 +16,21 @@ import com.google.android.material.snackbar.Snackbar;
 import java.io.IOException;
 import java.util.Objects;
 
+import okhttp3.Call;
+import okhttp3.Callback;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 
 public class ConversationViewFragment extends Fragment implements Callback {
+
+    private boolean reply;
     private FragmentConversationviewBinding binding;
 
     private CompletionClient completionClient;
+
+    public CompletionClient getCompletionClient() {
+        return completionClient;
+    }
 
     @Override
     public View onCreateView(
@@ -39,9 +44,20 @@ public class ConversationViewFragment extends Fragment implements Callback {
 
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
         binding.sendButton.setOnClickListener(clickView -> {
             // Send text message
         });
+        Bundle args = getArguments();
+        if(args != null) {
+            int threadID = args.getInt("threadID");
+            System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
+            Boolean reply = args.getBoolean("reply", false);
+            setReply(true);
+            if(reply == true){
+                reply4me();
+            }
+        }
         binding.completionButton.setOnClickListener(completionView -> {
             Snackbar.make(completionView, "Sending completion request",
                     Snackbar.LENGTH_SHORT).setAction(R.string.ok, null).show();
@@ -74,6 +90,12 @@ public class ConversationViewFragment extends Fragment implements Callback {
         });
     }
 
+    private void setReply(boolean reply) {
+        this.reply=reply;
+
+    }
+
+
     @Override
     public void onDestroyView() {
         super.onDestroyView();
@@ -100,11 +122,27 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 }
                 String completion = body.string();
                 completion = completion.substring(1, completion.length()-2);
+                String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
+                if(!(signature == null || signature.equals("not set")))
+                    completion += "\n" + signature;
                 binding.messageText.setText(completion);
+                if(isReply()==true){
+                    // TODO call send function when it is implemented
+                    setReply(false);
+                }
             } catch (IOException e) {
                 throw new RuntimeException(e);
             }
         });
+    }
+
+    private boolean isReply() {
+        return reply;
+    }
+
+    private void reply4me() {
+        completionClient.sendCompletionRequest(new String[]{"temp"}, this);
 
     }
+
 }

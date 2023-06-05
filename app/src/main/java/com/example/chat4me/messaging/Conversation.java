@@ -7,9 +7,25 @@ public class Conversation {
     private String contact; // The other participant's name
     private List<SmsMessage> messages; // The messages in the conversation
 
+    public int getThreadID() {
+        return threadID;
+    }
+
+    public void setThreadID(int threadID) {
+        this.threadID = threadID;
+    }
+
+    private int threadID;
+
     public Conversation(String contact) {
         this.contact = contact;
         this.messages = new ArrayList<>();
+        this.threadID = -1;
+    }
+
+    public Conversation(String contact, int threadID) {
+        this(contact);
+        this.threadID = threadID;
     }
 
     // Getter for participant
@@ -32,7 +48,18 @@ public class Conversation {
 
     // Method to add a message to the conversation
     public void addMessage(SmsMessage message) {
+        message.setThreadId(threadID);
         messages.add(message);
+    }
+
+    public boolean inConversation(String address) {
+        for(SmsMessage msg: messages) {
+            String msgAddr = msg.getAddress();
+            if(msgAddr != null && msgAddr.equals(address)) {
+                return true;
+            }
+        }
+        return false;
     }
 }
 
