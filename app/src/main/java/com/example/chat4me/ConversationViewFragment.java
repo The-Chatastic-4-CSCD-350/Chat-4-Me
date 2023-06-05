@@ -77,6 +77,8 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 messages.add("You:" + messageText);
                 updateRecentMessages();
                 binding.messageText.setText("");
+                newInstance(address);
+
             }
         });
 
@@ -154,6 +156,9 @@ public class ConversationViewFragment extends Fragment implements Callback {
         // Scroll to the bottom of the conversation
         final ScrollView scrollview = ((ScrollView) binding.getRoot().findViewById(R.id.scrollView));
         scrollview.post(() -> scrollview.fullScroll(ScrollView.FOCUS_DOWN));
+
+
+
     }
 
     private void setReply(boolean reply) {
@@ -218,5 +223,14 @@ public class ConversationViewFragment extends Fragment implements Callback {
     private void updateRecentMessages() {
         int startIndex = Math.max(0, messages.size() - MAX_RECENT);
         recentMessages = new ArrayList<>(messages.subList(startIndex, messages.size()));
+    }
+
+    public static ConversationViewFragment newInstance(String address) {
+        ConversationViewFragment f = new ConversationViewFragment();
+        // Supply index input as an argument.
+        Bundle args = new Bundle();
+        args.putString("address", address);
+        f.setArguments(args);
+        return f;
     }
 }
