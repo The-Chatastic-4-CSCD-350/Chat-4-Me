@@ -33,12 +33,6 @@ public class ConversationsFragment extends Fragment
     private FragmentConversationlistBinding binding;
     private List<Conversation> conversations; // a list of conversations
     private ConversationAdapter adapter; // Adapter for conversation list
-    private static final String[] PERMISSIONS_REQUESTED = {
-            android.Manifest.permission.READ_SMS,
-            android.Manifest.permission.SEND_SMS,
-            android.Manifest.permission.READ_CONTACTS,
-            Manifest.permission.INTERNET
-    };
 
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
@@ -95,7 +89,7 @@ public class ConversationsFragment extends Fragment
     }
 
     boolean hasRequiredPermissions() {
-        for(String permission: PERMISSIONS_REQUESTED) {
+        for(String permission: PermissionsHandler.PERMISSIONS_REQUESTED) {
             if(ActivityCompat.checkSelfPermission(this.getContext(),
                     permission) != PackageManager.PERMISSION_GRANTED) {
                 return false;
@@ -122,7 +116,7 @@ public class ConversationsFragment extends Fragment
             readThreads();
         } else {
             ActivityCompat.requestPermissions(this.getActivity(),
-                    PERMISSIONS_REQUESTED, 0);
+                    PermissionsHandler.PERMISSIONS_REQUESTED, 0);
         }
 
         // Create and set the adapter for the RecyclerView
