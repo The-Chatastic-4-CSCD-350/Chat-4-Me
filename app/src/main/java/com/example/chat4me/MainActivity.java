@@ -105,9 +105,6 @@ public class MainActivity extends AppCompatActivity
         if(id == R.id.action_settings) {
             goToFragment(R.id.SettingsFragment);
             return true;
-        } else if(id == R.id.action_read_contacts) {
-
-            return true;
         } else if(id == R.id.action_exit) {
             System.exit(0);
         }

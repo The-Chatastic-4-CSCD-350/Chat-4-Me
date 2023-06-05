@@ -1,10 +1,6 @@
 <resources>
     <string name="app_name">Chat 4 Me</string>
     <string name="action_settings">Settings</string>
-    <string name="action_read_sms">Read SMS</string>
-    <string name="action_send_sms">Send SMS</string>
-    <string name="action_logcat_menu">logcat testing</string>
-    <string name="action_read_contacts">Read contacts</string>
     <string name="action_exit">Exit</string>
     <!-- Strings used for fragments for navigation -->
     <string name="conversation_list_label">Conversations</string>
