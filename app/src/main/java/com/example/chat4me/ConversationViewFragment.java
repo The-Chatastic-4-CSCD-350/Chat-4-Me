@@ -96,8 +96,8 @@ public class ConversationViewFragment extends Fragment implements Callback {
                 "thread_id = ?", new String[]{Integer.toString(threadID)}, "date");
         LinearLayout messageLayout = binding.messagesLayout;
 
-        if (cursor != null) {
-            while (cursor.moveToNext()) {
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
                 int index = cursor.getColumnIndex("body");
                 if (index != -1) {
                     String messageBody = cursor.getString(index);
@@ -106,7 +106,7 @@ public class ConversationViewFragment extends Fragment implements Callback {
                     messageLayout.addView(textView);
                     messages.add(messageBody);
                 }
-            }
+            } while (cursor.moveToNext());
             cursor.close();
         }
     }
