@@ -2,18 +2,29 @@ package com.example.chat4me;
 
 import static androidx.preference.PreferenceManager.getDefaultSharedPreferences;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.fragment.app.Fragment;
 
 import com.example.chat4me.databinding.FragmentConversationviewBinding;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.io.IOException;
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Objects;
 
 import okhttp3.Call;
@@ -23,17 +34,20 @@ import okhttp3.ResponseBody;
 
 public class ConversationViewFragment extends Fragment implements Callback {
 
+    private static final int REQUEST_READ_SMS_PERMISSION = 101;
+
     private boolean reply;
     private FragmentConversationviewBinding binding;
 
     private CompletionClient completionClient;
+    private ArrayList<String> messages = new ArrayList<>();
 
     public CompletionClient getCompletionClient() {
         return completionClient;
     }
 
     @Override
-    public View onCreateView(
+    public ConstraintLayout onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
@@ -48,53 +62,57 @@ public class ConversationViewFragment extends Fragment implements Callback {
         binding.sendButton.setOnClickListener(clickView -> {
             // Send text message
         });
+
         Bundle args = getArguments();
-        if(args != null) {
+        if (args != null) {
             int threadID = args.getInt("threadID");
             System.out.printf("ConversationViewFragment created with threadID %d\n", threadID);
+            loadMessages(threadID);
             boolean reply = args.getBoolean("reply", false);
             setReply(true);
-            if(reply == true){
+            if (reply == true) {
                 reply4me();
             }
         }
+
         binding.completionButton.setOnClickListener(completionView -> {
             Snackbar.make(completionView, "Sending completion request",
                     Snackbar.LENGTH_SHORT).setAction(R.string.ok, null).show();
             completionClient.sendCompletionRequest(
-                    // TODO: replace hardcoded strings with with strings from conversation
-                    new String[]{
-                            "You:right",
-                            "You:As long as we have a little, that's fine. We can refine it later",
-                            "You:Sure",
-                            "You:Alright",
-                            "You:Are you guys in the lab room?",
-                            "You:the chat4me-util library",
-                            "You:She's not in today so you don't have to come. I forgot until I already got to class so I'm just working on the util functions",
-                            "You:Do you still have the original document file that you used to create the pdf?",
-                            "You:I added the state diagram to the document",
-                            "You:Did we need to have the updated class diagram part of the submission or is that just for resubmission of the structural model assignment?",
-                            "You:I don't know how but ArgoUML took a dump when it saved the latest UseCaseUML1.zargo so now it's unopenable :/",
-                            "You:☝️",
-                            "You:206",
-                            "You:Since chat4me.org is the cheapest option for the domain, I'm going with that",
-                            "You:It generates a jar file that you'll be able to import into the main app via Android Studio",
-                            "You:I've started work on the app utility stuff that I mentioned, though it doesn't do anything particularly interesting yet\nhttps://github.com/The-Chatastic-4-CSCD-350/chat4me-util",
-                            "You:I submitted the structural model assignment",
-                            "You:Updated the use case diagram and added another for the auto reply if driving use case",
-                            "You:nvm, disregard that, I think it might be easier to just share changes by uploading it directly to Discord, the file size is pretty small",
-                            "You:I shared the Argo UML file with you guys on Google Drive, here's a link",
-                            "You:Continuing the conversation, to help with the coding stuff, I would look into how to encode and decode JSON, and how to send HTTPS POST requests with form data and custom HTTP headers in Java"
-                    }, this);
-
+                    messages.toArray(new String[0]), this);
         });
     }
 
-    private void setReply(boolean reply) {
-        this.reply=reply;
+    private void loadMessages(int threadID) {
+        if (ContextCompat.checkSelfPermission(getActivity(), Manifest.permission.READ_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(getActivity(), new String[] { Manifest.permission.READ_SMS }, REQUEST_READ_SMS_PERMISSION);
+            return;
+        }
 
+        Uri uri = Uri.parse("content://sms");
+        String[] reqCols = new String[]{"_id", "thread_id", "address", "body"};
+
+        Cursor cursor = getActivity().getContentResolver().query(uri, reqCols, "thread_id=" + threadID, null, null);
+        LinearLayout messageLayout = binding.messagesLayout;
+
+        if (cursor != null) {
+            while (cursor.moveToNext()) {
+                int index = cursor.getColumnIndex("body");
+                if (index != -1) {
+                    String messageBody = cursor.getString(index);
+                    TextView textView = new TextView(getActivity());
+                    textView.setText(messageBody);
+                    messageLayout.addView(textView);
+                    messages.add(messageBody);
+                }
+            }
+            cursor.close();
+        }
     }
 
+    private void setReply(boolean reply) {
+        this.reply = reply;
+    }
 
     @Override
     public void onDestroyView() {
@@ -110,23 +128,23 @@ public class ConversationViewFragment extends Fragment implements Callback {
     }
 
     @Override
-    public void onResponse(@NonNull Call call, @NonNull Response response)  {
+    public void onResponse(@NonNull Call call, @NonNull Response response) {
         getActivity().runOnUiThread(() -> {
             try {
                 ResponseBody body = response.body();
-                if(body == null) {
+                if (body == null) {
                     Snackbar.make(binding.getRoot(), "Server returned a null body",
                             Snackbar.LENGTH_SHORT).setAction(R.string.ok,
                             null).show();
                     return;
                 }
                 String completion = body.string();
-                completion = completion.substring(1, completion.length()-2);
+                completion = completion.substring(1, completion.length() - 2);
                 String signature = getDefaultSharedPreferences(this.getActivity().getApplicationContext()).getString("signature", null);
-                if(!(signature == null || signature.equals("not set")))
+                if (!(signature == null || signature.equals("not set")))
                     completion += "\n" + signature;
                 binding.messageText.setText(completion);
-                if(isReply()==true){
+                if (isReply() == true) {
                     // TODO call send function when it is implemented
                     setReply(false);
                 }
@@ -141,8 +159,6 @@ public class ConversationViewFragment extends Fragment implements Callback {
     }
 
     private void reply4me() {
-        completionClient.sendCompletionRequest(new String[]{"temp"}, this);
-
+        completionClient.sendCompletionRequest(messages.toArray(new String[0]), this);
     }
-
 }
