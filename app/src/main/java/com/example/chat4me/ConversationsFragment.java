@@ -1,6 +1,7 @@
 package com.example.chat4me;
 
 import android.Manifest;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.net.Uri;
@@ -12,6 +13,7 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import static androidx.core.app.ActivityCompat.OnRequestPermissionsResultCallback;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentActivity;
@@ -33,7 +35,7 @@ public class ConversationsFragment extends Fragment
     private FragmentConversationlistBinding binding;
     private List<Conversation> conversations; // a list of conversations
     private ConversationAdapter adapter; // Adapter for conversation list
-
+    private SharedPreferences settings;
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions,
                                            @NonNull int[] grantResults) {
@@ -98,13 +100,46 @@ public class ConversationsFragment extends Fragment
         return true;
     }
 
+
+    private void showPermissionsRequest() {
+        View layout = getView().findViewById(R.id.nav_host_fragment_content_main);
+        if (ActivityCompat.shouldShowRequestPermissionRationale(getActivity(),
+                android.Manifest.permission.READ_SMS)) {
+            Snackbar.make(layout, R.string.sms_read_permission_ask, Snackbar.LENGTH_LONG)
+                    .setAction(R.string.ok,
+                            v -> ActivityCompat.requestPermissions(getActivity(),
+                                    PermissionsHandler.PERMISSIONS_REQUESTED,
+                                    PermissionsHandler.PERMISSION_SMS_READ)).show();
+        } else {
+            Snackbar.make(getActivity().findViewById(R.id.fragment_activity_main), R.string.sms_loading, Snackbar.LENGTH_SHORT).show();
+            // Request the permission. The result will be received in onRequestPermissionResult().
+            ActivityCompat.requestPermissions(getActivity(),
+                    PermissionsHandler.PERMISSIONS_REQUESTED, PermissionsHandler.PERMISSION_SMS_READ);
+        }
+    }
+
+    private void showDisclaimerPrompt() {
+        new AlertDialog.Builder(getContext())
+                .setTitle(R.string.disclaimer_title)
+                .setMessage(R.string.disclaimer_message)
+                .setNegativeButton(R.string.cancel, (dialogInterface, i) -> System.exit(0))
+                .setPositiveButton(R.string.ok, (dialogInterface, i) -> {
+                    settings.edit().putLong("id", System.currentTimeMillis()).apply();
+                    showPermissionsRequest();
+                })
+                .show();
+    }
+
+
     @Override
     public View onCreateView(
             LayoutInflater inflater, ViewGroup container,
             Bundle savedInstanceState
     ) {
         // Initialize conversations list
-        conversations = new ArrayList<>();
+        if(conversations == null)
+            conversations = new ArrayList<>();
+        settings = getActivity().getSharedPreferences("c4mprefs", 0);
         binding = FragmentConversationlistBinding.inflate(inflater, container, false);
         return binding.getRoot();
     }
@@ -112,12 +147,24 @@ public class ConversationsFragment extends Fragment
     public void onViewCreated(@NonNull View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        if(hasRequiredPermissions()) {
-            readThreads();
+        if(settings.getLong("id", -1) != -1) {
+            // disclaimer has already been accepted
+            if(hasRequiredPermissions()) {
+                readThreads();
+            } else {
+                ActivityCompat.requestPermissions(this.getActivity(),
+                        PermissionsHandler.PERMISSIONS_REQUESTED, 0);
+            }
         } else {
-            ActivityCompat.requestPermissions(this.getActivity(),
-                    PermissionsHandler.PERMISSIONS_REQUESTED, 0);
+            showDisclaimerPrompt();
         }
+        //
+//        if(hasRequiredPermissions()) {
+//            readThreads();
+//        } else if(settings.getLong("id", -1) == -1) {
+//            ActivityCompat.requestPermissions(this.getActivity(),
+//                    PermissionsHandler.PERMISSIONS_REQUESTED, 0);
+//        }
 
         // Create and set the adapter for the RecyclerView
         adapter = new ConversationAdapter(conversations, new OnConversationClickListener() {
