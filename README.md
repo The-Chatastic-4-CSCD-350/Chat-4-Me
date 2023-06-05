@@ -14,9 +14,12 @@ Android studio
 After opening the Chat4Me repository you can download the code by hitting code and download zip
 
 go into your files and unzip the code. After doing so open Android studio and click File > new > import project
-Choose the file Chat-4-Me
+Choose the file Chat-4-Me-master
 
-after importing the project you should plug In your phone
+after importing the project wait for the project to completely import, which should create a run configuration called app, otherwise create an android
+app run configuration under the file app
+
+you should then plug In your Android Phone
 build the project 
 Click run
 This should download the Chat4Me app directly to your android device
