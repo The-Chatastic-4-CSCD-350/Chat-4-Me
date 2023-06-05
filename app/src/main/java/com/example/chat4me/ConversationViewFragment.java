@@ -87,9 +87,6 @@ public class ConversationViewFragment extends Fragment implements Callback {
             loadMessages(threadID);
             boolean reply = args.getBoolean("reply", false);
             setReply(reply);
-            if (reply) {
-                reply4me();
-            }
         }
 
         binding.completionButton.setOnClickListener(completionView -> {
@@ -98,6 +95,10 @@ public class ConversationViewFragment extends Fragment implements Callback {
             completionClient.sendCompletionRequest(
                     recentMessages.toArray(new String[0]), this);
         });
+        
+        if (reply) {
+            reply4me();
+        }
     }
 
     private void loadMessages(int threadID) {
@@ -190,8 +191,15 @@ public class ConversationViewFragment extends Fragment implements Callback {
                     completion += "\n" + signature;
                 binding.messageText.setText(completion);
                 if (isReply() == true) {
-                    // TODO call send function when it is implemented
-                    setReply(false);
+                    Editable messageText = binding.messageText.getText();
+                    if(messageText != null && messageText.length() != 0) {
+                        SmsManager smsManager = SmsManager.getDefault();
+                        smsManager.sendTextMessage(address, null,
+                                messageText.toString(), null, null);
+                        messages.add("You:" + messageText);
+                        binding.messageText.setText("");
+                    }
+                        setReply(false);
                 }
             } catch (IOException e) {
                 throw new RuntimeException(e);
