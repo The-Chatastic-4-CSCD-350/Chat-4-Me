@@ -1,3 +1,22 @@
 Chat 4 Me
 ==========
 A texting app that uses the GPT-3 algorithm to optionally generate messages for you, on-demand
+
+Install
+	Requirements
+Android Phone
+Java version 17
+	https://www.oracle.com/java/technologies/javase/jdk17-archive-downloads.html
+Android studio
+	https://developer.android.com/studio
+				For both Click link and download version that matches your computer operating system
+
+After opening the Chat4Me repository you can download the code by hitting code and download zip
+
+go into your files and unzip the code. After doing so open Android studio and click File > new > import project
+Choose the file Chat-4-Me
+
+after importing the project you should plug In your phone
+build the project 
+Click run
+This should download the Chat4Me app directly to your android device
