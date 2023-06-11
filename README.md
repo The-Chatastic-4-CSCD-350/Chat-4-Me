@@ -23,3 +23,6 @@ you should then plug In your Android Phone
 build the project 
 Click run
 This should download the Chat4Me app directly to your android device
+
+In order to run your own project you must input a new API key for ChatBotGPT-3 API (accessed through OpenAI) and purchase Tokens for the chat Bot to be able to send it prompts.
+the API key goes under API key in the Chat4Me - Proxy code
